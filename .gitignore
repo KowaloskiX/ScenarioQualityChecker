@@ -29,6 +29,14 @@ bin/
 # Logs
 *.log
 
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# Spring Initializr leftovers
+HELP.md
+
 # OS / editor cruft
 Thumbs.db
 *.swp
