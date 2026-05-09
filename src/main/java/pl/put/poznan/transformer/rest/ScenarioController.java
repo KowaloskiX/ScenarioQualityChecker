@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pl.put.poznan.transformer.logic.model.Scenario;
-import pl.put.poznan.transformer.rest.dto.ScenarioDto;
+import pl.put.poznan.transformer.logic.visitor.StepCountVisitor;
 
 import javax.validation.Valid;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * REST controller for the Scenario Quality Checker. Receives a scenario as
@@ -28,15 +30,31 @@ public class ScenarioController {
      * Reads a scenario from JSON and sends it back. Used to check that the
      * input has the right format.
      *
-     * @param request the scenario sent by the client
+     * @param scenario the scenario sent by the client
      * @return the same scenario after parsing
      */
     @PostMapping(path = "/parse", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Scenario parse(@Valid @RequestBody ScenarioDto request) {
-        logger.info("Got parse request for scenario \"{}\"", request.getTitle());
-        Scenario scenario = request.toDomain();
+    public Scenario parse(@Valid @RequestBody Scenario scenario) {
+        logger.info("Got parse request for scenario \"{}\"", scenario.getTitle());
         logger.debug("Scenario \"{}\" has {} top-level steps",
                 scenario.getTitle(), scenario.getSteps().size());
         return scenario;
+    }
+
+    /**
+     * Counts all steps in the scenario, including sub-steps at any depth.
+     * An empty scenario returns zero.
+     *
+     * @param scenario the scenario sent by the client
+     * @return JSON with the total step count, e.g. {@code {"stepCount": 5}}
+     */
+    @PostMapping(path = "/step-count", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Integer> stepCount(@Valid @RequestBody Scenario scenario) {
+        logger.info("Got step-count request for scenario \"{}\"", scenario.getTitle());
+        StepCountVisitor visitor = new StepCountVisitor();
+        scenario.accept(visitor);
+        logger.debug("Scenario \"{}\" has {} step(s) in total",
+                scenario.getTitle(), visitor.getCount());
+        return Collections.singletonMap("stepCount", visitor.getCount());
     }
 }
