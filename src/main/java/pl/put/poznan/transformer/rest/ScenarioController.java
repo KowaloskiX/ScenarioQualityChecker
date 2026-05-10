@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
+import pl.put.poznan.transformer.logic.export.ScenarioTextExporter;
 import pl.put.poznan.transformer.logic.model.Scenario;
 import pl.put.poznan.transformer.logic.visitor.StepCountVisitor;
 
@@ -56,5 +59,36 @@ public class ScenarioController {
         logger.debug("Scenario \"{}\" has {} step(s) in total",
                 scenario.getTitle(), visitor.getCount());
         return Collections.singletonMap("stepCount", visitor.getCount());
+    }
+    /**
+     * Exports scenario as a downloadable text file
+     * with numbered steps.
+     *
+     * @param scenario scenario to export
+     * @return downloadable text file
+     */
+    @PostMapping(
+            path = "/export",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> export(@Valid @RequestBody Scenario scenario) {
+
+        logger.info("Got export request for scenario \"{}\"",
+                scenario.getTitle());
+
+        ScenarioTextExporter exporter = new ScenarioTextExporter();
+
+        String text = exporter.export(scenario);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"scenario.txt\""
+                )
+                .header(
+                        HttpHeaders.CONTENT_TYPE,
+                        MediaType.TEXT_PLAIN_VALUE
+                )
+                .body(text);
     }
 }
