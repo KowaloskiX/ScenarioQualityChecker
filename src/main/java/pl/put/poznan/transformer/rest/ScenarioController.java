@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import pl.put.poznan.transformer.logic.export.ScenarioTextExporter;
 import pl.put.poznan.transformer.logic.model.Scenario;
 import pl.put.poznan.transformer.logic.visitor.StepCountVisitor;
+import pl.put.poznan.transformer.logic.visitor.KeywordCountVisitor;
 
 import javax.validation.Valid;
 import java.util.Collections;
@@ -60,6 +61,24 @@ public class ScenarioController {
                 scenario.getTitle(), visitor.getCount());
         return Collections.singletonMap("stepCount", visitor.getCount());
     }
+
+    /**
+     * Counts how many steps in the scenario begin with a conditional keyword 
+     * (e.g., IF, ELSE, FOR EACH).
+     *
+     * @param scenario the scenario sent by the client
+     * @return JSON with the keyword count, e.g. {@code {"keywordCount": X}}
+     */
+    @PostMapping(path = "/keyword-count", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Integer> keywordCount(@Valid @RequestBody Scenario scenario) {
+        logger.info("Got keyword-count request for scenario \"{}\"", scenario.getTitle());
+        KeywordCountVisitor visitor = new KeywordCountVisitor();
+        scenario.accept(visitor);
+        logger.debug("Scenario \"{}\" has {} step(s) with keywords",
+                scenario.getTitle(), visitor.getCount());
+        return Collections.singletonMap("keywordCount", visitor.getCount());
+    }
+
     /**
      * Exports scenario as a downloadable text file
      * with numbered steps.
