@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
-    
+
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -15,12 +15,14 @@
     <artifactId>scenarioqualitychecker</artifactId>
     <version>1.0.0</version>
     <name>scenarioqualitychecker</name>
+    <description>Scenario Quality Checker with REST-based scenario analysis.</description>
 
 	<properties>
         <java.version>11</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    
+
     <dependencies>
         <dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -53,6 +55,7 @@
 
 
     <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
