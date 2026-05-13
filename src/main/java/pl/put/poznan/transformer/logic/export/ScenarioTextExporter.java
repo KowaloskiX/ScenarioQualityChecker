@@ -6,13 +6,14 @@ import pl.put.poznan.transformer.logic.model.Step;
 import java.util.List;
 
 /**
- * Creates a plain text representation of a scenario
- * with hierarchical step numbering.
+ * Exports a scenario into a plain-text document with hierarchical numbering.
+ * The output is intended for requirement documentation and preserves the
+ * nesting structure of sub-scenarios.
  */
 public class ScenarioTextExporter {
 
     /**
-     * Converts the scenario into formatted text.
+     * Converts the supplied scenario into formatted text.
      *
      * Example:
      *
@@ -36,7 +37,7 @@ public class ScenarioTextExporter {
      *
      *
      * @param scenario scenario to export
-     * @return formatted text
+     * @return formatted text containing metadata and numbered steps
      */
     public String export(Scenario scenario) {
         StringBuilder builder = new StringBuilder();
@@ -75,11 +76,11 @@ public class ScenarioTextExporter {
     }
 
     /**
-     * Recursively appends numbered steps.
+     * Recursively appends numbered steps to the target buffer.
      *
-     * @param builder text builder
-     * @param steps list of steps
-     * @param prefix current numbering prefix
+     * @param builder text builder collecting the export result
+     * @param steps list of steps to append at the current nesting level
+     * @param prefix current numbering prefix inherited from the parent step
      */
     private void appendSteps(StringBuilder builder,
                              List<Step> steps,

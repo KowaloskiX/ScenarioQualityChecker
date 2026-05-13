@@ -9,6 +9,7 @@ import pl.put.poznan.transformer.logic.model.Step;
  */
 public class KeywordCountVisitor implements ScenarioVisitor {
 
+    /** Running total of steps whose text starts with a supported keyword. */
     private int count = 0;
 
     /**
@@ -22,7 +23,7 @@ public class KeywordCountVisitor implements ScenarioVisitor {
 
     @Override
     public void visit(Scenario scenario) {
-        // Ignored, we only count steps
+        // The scenario node is not counted. Only its steps matter here.
     }
 
     @Override
@@ -31,7 +32,7 @@ public class KeywordCountVisitor implements ScenarioVisitor {
         if (text == null) {
             return;
         }
-        
+
         for (String keyword : Step.KEYWORDS) {
             if (text.startsWith(keyword)) {
                 count++;

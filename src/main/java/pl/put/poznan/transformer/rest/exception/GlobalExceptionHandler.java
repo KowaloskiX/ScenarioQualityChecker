@@ -59,10 +59,23 @@ public class GlobalExceptionHandler {
         return badRequest(List.of(detail));
     }
 
+    /**
+     * Formats a validation error into a short {@code field: message} entry
+     * returned to the client.
+     *
+     * @param fieldError validation error reported by Spring
+     * @return formatted error description
+     */
     private static String formatFieldError(FieldError fieldError) {
         return fieldError.getField() + ": " + fieldError.getDefaultMessage();
     }
 
+    /**
+     * Creates a standardized HTTP 400 JSON response body.
+     *
+     * @param messages validation or parsing problems to include in the payload
+     * @return bad-request response with timestamp and messages
+     */
     private static ResponseEntity<Map<String, Object>> badRequest(List<String> messages) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", OffsetDateTime.now().toString());
