@@ -34,8 +34,17 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: scenarioqualitychecker-build-artifacts
-          path: target/*.jar
+          name: scenarioqualitychecker-application
+          path: target/scenarioqualitychecker-*.jar
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload API docs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenarioqualitychecker-apidocs
+          path: target/site/apidocs
           if-no-files-found: error
           retention-days: 30
 
@@ -71,21 +80,34 @@ jobs:
             exit 1
           fi
 
+      - name: Capture release version
+        id: release_meta
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
       - name: Build release artifacts
         run: mvn --batch-mode --update-snapshots clean package
 
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Release ${{ github.ref_name }}
-          body: |
-            Automated release for Scenario Quality Checker.
+      - name: Package HTML API docs
+        run: |
+          VERSION="${{ steps.release_meta.outputs.version }}"
+          cd target/site/apidocs
+          zip -r "../../scenarioqualitychecker-${VERSION}-apidocs.zip" .
 
-            Included assets:
-            - runnable application JAR
-            - generated Javadoc JAR
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-          files: |
-            target/*.jar
+      - name: Recreate GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RELEASE_TAG="${GITHUB_REF_NAME}"
+          VERSION="${{ steps.release_meta.outputs.version }}"
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release delete "$RELEASE_TAG" --yes
+          fi
+
+          gh release create "$RELEASE_TAG" \
+            "target/scenarioqualitychecker-${VERSION}.jar" \
+            "target/scenarioqualitychecker-${VERSION}-apidocs.zip" \
+            --verify-tag \
+            --title "Release ${RELEASE_TAG}" \
+            --notes "Automated release for Scenario Quality Checker." \
+            --generate-notes

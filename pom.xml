@@ -73,10 +73,10 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>attach-javadocs</id>
+                        <id>generate-javadocs</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>javadoc</goal>
                         </goals>
                     </execution>
                 </executions>
